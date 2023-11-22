@@ -22,7 +22,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import Drawer from "@mui/material/Drawer";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import { useState } from "react";
-import { useMediaQuery } from "@mui/material";
+import { Fade, Paper, Popover, Popper, useMediaQuery } from "@mui/material";
 
 const drawerWidth = 240;
 
@@ -99,17 +99,41 @@ export default function MiniDrawer({ window, children }) {
   const [open, setOpen] = useState(false);
   const isWeb = useMediaQuery(theme.breakpoints.up("sm"));
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [popContent, setPopContent] = React.useState("");
+
   const handleDrawer = () => {
     setOpen(!open);
   };
 
+  const handleClosePop = () => {
+    setAnchorEl(null);
+    setPopContent("");
+  };
+
+  const handlePopoverOpen = (content) => (event) => {
+    setAnchorEl(event.currentTarget);
+    setPopContent(content);
+  };
+
+  const openPop = Boolean(anchorEl);
+
   const drawer = (
     <>
       <Toolbar />
-      <Box flex={1} sx={{ overflowY: "auto", overflowX: "hidden" }}>
+      <Box
+        onMouseLeave={handleClosePop}
+        flex={1}
+        sx={{ overflowY: "auto", overflowX: "hidden" }}
+      >
         <List>
           {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+            <ListItem
+              onMouseEnter={handlePopoverOpen(text)}
+              key={text}
+              disablePadding
+              sx={{ display: "block" }}
+            >
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -131,6 +155,33 @@ export default function MiniDrawer({ window, children }) {
             </ListItem>
           ))}
         </List>
+        <Popper
+          id={"simple-popover"}
+          open={isWeb && openPop}
+          anchorEl={anchorEl}
+          onClose={handleClosePop}
+          placement={"right"}
+          transition
+          sx={{
+            zIndex: 10000,
+          }}
+          modifiers={[
+            {
+              name: "offset",
+              options: {
+                offset: [0, -5],
+              },
+            },
+          ]}
+        >
+          {({ TransitionProps }) => (
+            <Fade {...TransitionProps} timeout={350}>
+              <Paper sx={{ p: 2 }}>
+                <Typography>The content of the Popper.{popContent}</Typography>
+              </Paper>
+            </Fade>
+          )}
+        </Popper>
       </Box>
     </>
   );
