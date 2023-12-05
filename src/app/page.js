@@ -9,8 +9,8 @@ export default function Home() {
       <Box>
         {Array(10)
           .fill(1)
-          .map((x) => (
-            <Card sx={{ mt: 2 }}>
+          .map((x, i) => (
+            <Card sx={{ mt: 2 }} key={i}>
               <Typography variant="h2" color={"primary.main"}>
                 Hello World ~
               </Typography>
